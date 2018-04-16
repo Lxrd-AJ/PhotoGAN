@@ -16,7 +16,7 @@ dtype = torch.cuda.FloatTensor if USE_CUDA else torch.FloatTensor
 imsize = 512 if USE_CUDA else 128
 
 loader = transforms.Compose([
-    transforms.Resize(imsize),
+    transforms.Resize([imsize,imsize]),
     transforms.ToTensor()
 ])
 
@@ -26,10 +26,10 @@ def image_loader(image_name):
     image = image.unsqueeze(0)
     return image 
 
-style_img = image_loader("images/picasso.jpg").type(dtype)
-content_img = image_loader("images/dancing.jpg").type(dtype)
+style_img = image_loader("images/monet2.jpg").type(dtype)
+content_img = image_loader("images/model.jpg").type(dtype)
 
-assert style_img.size() == content_img.size(), "Content and Style Images must be of the same size"
+assert style_img.size() == content_img.size(), "Content {:} and Style {:} Images must be of the same size".format(content_img.size(), style_img.size())
 
 unloader = transforms.ToPILImage()
 
@@ -44,12 +44,12 @@ def imshow(tensor, title=None):
         plt.title(title)
         plt.waitforbuttonpress()
 
-plt.figure()
-imshow(style_img.data, title="Style Image")
-plt.figure()
-imshow(content_img.data, title="Content Image")
+# plt.figure()
+# imshow(style_img.data, title="Style Image")
+# plt.figure()
+# imshow(content_img.data, title="Content Image")
 
-plt.show()
+# plt.show()
 
 class ContentLoss(nn.Module):
     def __init__(self, target, weight):
@@ -65,7 +65,7 @@ class ContentLoss(nn.Module):
 
     def backward(self, retain_graph=True):
         self.loss.backward(retain_graph=retain_graph)
-        return loss
+        return self.loss
 
 
 class GramMatrix(nn.Module):
@@ -159,6 +159,48 @@ def get_style_model_and_losses(cnn, style_img, content_img, style_weight=1000, c
 
     return model, style_losses, content_losses 
 
-input_img = Variable(torch.randn(content_img.data.size())).type(dtype) 
+input_img = content_img.clone()
+# input_img = Variable(torch.randn(content_img.data.size())).type(dtype) 
+# plt.figure()
+# imshow(input_img.data, title="Input Image") 
+
+def get_input_param_optimizer(input_img):
+    input_param = nn.Parameter(input_img.data)
+    optimizer = optim.LBFGS([input_param])
+    return input_param, optimizer
+
+def run_style_transfer(cnn, content_img, style_img, input_img, num_steps=1000, style_weight=1000, content_weight=1):
+    """Run the style transfer"""
+    print("Building the style transfer model ...")
+    model, style_losses, content_losses = get_style_model_and_losses(cnn, style_img, content_img, style_weight, content_weight)
+    input_param, optimizer = get_input_param_optimizer(input_img)
+    print("Optimizing ...")
+    run = [0]
+    while run[0] <= num_steps:
+        def closure():
+            input_param.data.clamp_(0,1)
+            optimizer.zero_grad()
+            model(input_param)
+            style_score = 0
+            content_score = 0
+
+            for sl in style_losses:
+                style_score += sl.backward()
+            for cl in content_losses:
+                content_score += cl.backward()
+
+            run[0] += 1
+            if run[0] % 50 == 0:
+                print("run {:}:".format(run))
+                print("Style loss: {:4f} Content Loss: {:4f}".format(style_score.data[0], content_score.data[0]))
+                print()
+            return style_score + content_score
+        optimizer.step(closure)
+    input_param.data.clamp_(0,1)
+    return input_param.data
+
+output = run_style_transfer(cnn, content_img, style_img, input_img)
 plt.figure()
-imshow(input_img.data, title="Input Image")
+imshow(output, title="Output Image")
+plt.ioff()
+plt.show()
