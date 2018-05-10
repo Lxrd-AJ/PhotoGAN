@@ -15,4 +15,5 @@
 * Neural style transfer - https://github.com/jcjohnson/neural-style/
 * Deep photo style transfer - https://github.com/luanfujun/deep-photo-styletransfer
 * Real-Time Texture Synthesis with Markovian GANs - https://github.com/chuanli11/MGANs
+* Image-to-Image Translation with Conditional Adversarial Networks - https://github.com/phillipi/pix2pix
 * Toward Multimodal Image-to-Image Translation - https://junyanz.github.io/BicycleGAN/
