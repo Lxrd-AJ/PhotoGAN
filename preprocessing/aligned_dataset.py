@@ -8,10 +8,11 @@ from .utils import get_images_list
 
 
 class AlignedDataset(data.Dataset):
-    def __init__(self, dataroot, is_training=True):
+    def __init__(self, dataroot, is_training=True, should_crop=False):
         super(AlignedDataset,self).__init__()
         self.scale_size = 286
-        self.crop_size = 256
+        self.crop_size = 256 # Also known as fine size, for the smaller version
+        self.should_crop = should_crop
         self.initialise(dataroot, is_training)
     
     def name(self):
@@ -31,5 +32,21 @@ class AlignedDataset(data.Dataset):
         width = int(total_width/2)
         height = AB.size(1)
 
-        #TODO: Continue center crop
-        return AB
+        if self.should_crop:
+            w_offset = int(round(width - self.crop_size) / 2.0)
+            h_offset = int(round(height - self.crop_size) / 2.0)
+        else:
+            w_offset = random.randint(0, max(0,width - self.crop_size - 1))
+            h_offset = random.randint(0, max(0,height - self.crop_size - 1))
+
+        image_height = h_offset + self.crop_size
+        image_width = w_offset + self.crop_size
+
+        A_image = AB[:, h_offset:image_height, w_offset:image_width]
+        B_image = AB[:, h_offset:image_height, width + w_offset: width + image_width]
+
+        A_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(A)
+        B_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(B)
+
+        #TODO: Finish up https://github.com/junyanz/BicycleGAN/blob/master/data/aligned_dataset.py (line 43-62)
+        return {'A': A_image, 'B': B_image}
