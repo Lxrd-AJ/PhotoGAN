@@ -1,15 +1,9 @@
 # Photorealistic Background Generation
-
-# Approaches to take
-* Superpixel segmentation
-* Neural style transfer
+We're looking at Image-to-Image translation
 
 # Papers to read
-* Neural style transfer https://arxiv.org/abs/1508.06576 
-* Deep Photo Style Transfer https://arxiv.org/abs/1703.07511
-* Real-Time Texture Synthesis with Markovian GANs https://arxiv.org/pdf/1604.04382.pdf
+* GANs https://arxiv.org/abs/1406.2661 
+* BicycleGAN https://junyanz.github.io/BicycleGAN/
 
-# Examples
-* Neural style transfer - https://github.com/jcjohnson/neural-style/
-* Deep photo style transfer - https://github.com/luanfujun/deep-photo-styletransfer
-* Real-Time Texture Synthesis with Markovian GANs https://github.com/chuanli11/MGANs
+# Resources
+* GANS http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture13.pdf
