@@ -31,8 +31,8 @@ def get_non_linearity(layer_type='relu'):
 def initialise_weights(net, init_type, gain=0.02):
     def init_function(module): #module is a pytorch module
         classname = module.__class__.__name__
-        # if hasattr(module,'weight') and 
-        # TODO: Continue
+        if hasattr(module,'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1): 
+            # TODO: Continue
         print(classname)
     print("Initialising network with " + init_type)
     net.apply(init_function)
@@ -54,6 +54,6 @@ def define_Gen(input_chan, output_chan, num_z, num_gen_filters, model_net_gen='u
 
     assert num_z > 0 
 
-    net_Gen = #TODO: Continue
+    net_Gen = UNet(input_chan, output_chan, num_z, 7, num_gen_filters, norm_layer=norm_layer, lin_layer=non_lin_actv, dropout=dropout, upsample=upsample)
 
-    return initialise_network() #TODO
+    return initialise_network( net_Gen, init_type ) 
