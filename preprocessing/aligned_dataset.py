@@ -45,8 +45,8 @@ class AlignedDataset(data.Dataset):
         A_image = AB[:, h_offset:image_height, w_offset:image_width]
         B_image = AB[:, h_offset:image_height, width + w_offset: width + image_width]
 
-        A_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(A)
-        B_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(B)
+        A_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(A_image)
+        B_image = transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))(B_image)
 
         #TODO: Finish up https://github.com/junyanz/BicycleGAN/blob/master/data/aligned_dataset.py (line 43-62)
         return {'A': A_image, 'B': B_image}

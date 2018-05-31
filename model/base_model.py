@@ -7,5 +7,6 @@ class BaseModel():
     def name(self):
         return "BaseModel"
 
-    def initialise(self, device, is_training, dir):
+    def initialise(self, device, is_training, dir=""):
+        print(device)
         self.device = device
